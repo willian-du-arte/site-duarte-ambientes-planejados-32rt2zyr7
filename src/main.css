@@ -1,0 +1,196 @@
+/* Global styles - Theme, font, utilities, animations and global components */
+
+/* Warm serif for headings and clean sans for body */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm, welcoming wood and earth tones */
+    /* Background: soft warm cream */
+    --background: 38 42% 97%;
+    /* Foreground: deep warm charcoal/espresso */
+    --foreground: 24 28% 18%;
+
+    /* Cards: crisp warm off-white */
+    --card: 0 0% 100%;
+    --card-foreground: 24 28% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 28% 18%;
+
+    /* Primary: rich amber wood / terracotta */
+    --primary: 24 72% 38%;
+    --primary-foreground: 36 60% 98%;
+
+    /* Secondary: soft warm taupe */
+    --secondary: 35 30% 92%;
+    --secondary-foreground: 24 35% 22%;
+
+    /* Muted: neutral warm grey */
+    --muted: 36 24% 93%;
+    --muted-foreground: 24 12% 46%;
+
+    /* Accent: warm golden amber */
+    --accent: 36 65% 90%;
+    --accent-foreground: 24 72% 28%;
+
+    --destructive: 0 74% 54%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 33 22% 88%;
+    --input: 33 22% 88%;
+    --ring: 24 72% 38%;
+
+    /* Rounded, welcoming corners */
+    --radius: 0.85rem;
+
+    --sidebar-background: 38 35% 96%;
+    --sidebar-foreground: 24 28% 18%;
+    --sidebar-primary: 24 72% 38%;
+    --sidebar-primary-foreground: 36 60% 98%;
+    --sidebar-accent: 35 30% 92%;
+    --sidebar-accent-foreground: 24 35% 22%;
+    --sidebar-border: 33 22% 88%;
+    --sidebar-ring: 24 72% 38%;
+
+    --chart-1: 24 72% 38%;
+    --chart-2: 36 82% 48%;
+    --chart-3: 152 40% 38%;
+    --chart-4: 28 65% 58%;
+    --chart-5: 38 45% 72%;
+  }
+
+  .dark {
+    --background: 24 26% 11%;
+    --foreground: 38 40% 96%;
+
+    --card: 24 24% 14%;
+    --card-foreground: 38 40% 96%;
+
+    --popover: 24 24% 14%;
+    --popover-foreground: 38 40% 96%;
+
+    --primary: 28 75% 54%;
+    --primary-foreground: 24 30% 12%;
+
+    --secondary: 24 20% 20%;
+    --secondary-foreground: 38 40% 96%;
+
+    --muted: 24 18% 22%;
+    --muted-foreground: 34 16% 68%;
+
+    --accent: 28 45% 24%;
+    --accent-foreground: 38 40% 96%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 24 18% 24%;
+    --input: 24 18% 24%;
+    --ring: 28 75% 54%;
+
+    --sidebar-background: 24 26% 12%;
+    --sidebar-foreground: 38 40% 96%;
+    --sidebar-primary: 28 75% 54%;
+    --sidebar-primary-foreground: 24 30% 12%;
+    --sidebar-accent: 24 20% 20%;
+    --sidebar-accent-foreground: 38 40% 96%;
+    --sidebar-border: 24 18% 24%;
+    --sidebar-ring: 28 75% 54%;
+  }
+
+  /* NEVER REMOVE THIS */
+  section[aria-label='Notifications alt+T'] {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body {
+    font-family:
+      'Plus Jakarta Sans',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-serif {
+    font-family: 'Playfair Display', Georgia, Cambria, 'Times New Roman', serif;
+  }
+}
+
+@layer utilities {
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      transform: translateY(12px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-accordion-down {
+    animation: accordion-down 0.2s ease-out;
+  }
+
+  .animate-accordion-up {
+    animation: accordion-up 0.2s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.4s ease-out;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out;
+  }
+}
