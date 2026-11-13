@@ -24,6 +24,7 @@ import {
   updateContactNotes,
   deleteContact,
 } from '@/services/contacts'
+import { convertContact } from '@/services/contact-conversion'
 import { logout, getCurrentUser } from '@/services/auth'
 import type { ContactRecord, ContactStatus } from '@/types/contact'
 import {
@@ -41,6 +42,7 @@ import {
   Search,
   ExternalLink,
   ChevronDown,
+  UserPlus,
 } from 'lucide-react'
 
 const STATUS_LABELS: Record<
@@ -76,6 +78,9 @@ export default function ContactsDashboard() {
   const [editingNotesItem, setEditingNotesItem] = useState<ContactRecord | null>(null)
   const [notesText, setNotesText] = useState('')
   const [deleteConfirmItem, setDeleteConfirmItem] = useState<ContactRecord | null>(null)
+  const [convertTarget, setConvertTarget] = useState<ContactRecord | null>(null)
+  const [converting, setConverting] = useState(false)
+  const [convertedMsg, setConvertedMsg] = useState('')
 
   const navigate = useNavigate()
   const user = getCurrentUser()
@@ -138,6 +143,30 @@ export default function ContactsDashboard() {
   const handleLogout = () => {
     logout()
     navigate('/')
+  }
+
+  const handleConvert = async () => {
+    if (!convertTarget) return
+    setConverting(true)
+    try {
+      const result = await convertContact(convertTarget)
+      setContacts((prev) =>
+        prev.map((c) =>
+          c.id === convertTarget.id
+            ? { ...c, status: 'convertido' as ContactStatus, converted_client: result.clientId }
+            : c,
+        ),
+      )
+      setConvertedMsg(
+        `${convertTarget.name} virou cliente no CRM, com oportunidade na etapa "Novo contato".`,
+      )
+      setConvertTarget(null)
+    } catch (err) {
+      console.error('Erro ao converter contato:', err)
+      alert('Não foi possível converter o contato em cliente.')
+    } finally {
+      setConverting(false)
+    }
   }
 
   const filteredContacts = contacts.filter((c) => {
@@ -371,6 +400,13 @@ export default function ContactsDashboard() {
                           {contact.name}
                         </h3>
 
+                        {contact.status === 'convertido' && (
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border bg-violet-100 dark:bg-violet-950/40 border-violet-300 dark:border-violet-800 text-violet-900 dark:text-violet-300">
+                            <UserPlus className="w-3.5 h-3.5" />
+                            <span>Convertido em cliente</span>
+                          </div>
+                        )}
+
                         {/* Status Badge */}
                         <div
                           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusCfg.bg} ${statusCfg.text}`}
@@ -418,6 +454,17 @@ export default function ContactsDashboard() {
 
                     {/* Actions: change status, notes, delete */}
                     <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-2.5 pt-3 lg:pt-0 border-t lg:border-t-0 border-border">
+                      {contact.status !== 'convertido' && (
+                        <Button
+                          size="sm"
+                          disabled={converting}
+                          onClick={() => setConvertTarget(contact)}
+                          className="rounded-xl gap-1.5 h-9 bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                          <UserPlus className="w-3.5 h-3.5" />
+                          <span>Converter em cliente</span>
+                        </Button>
+                      )}
                       <div className="flex items-center gap-2 w-full sm:w-auto">
                         <span className="text-xs text-muted-foreground whitespace-nowrap lg:hidden">
                           Alterar status:
@@ -487,6 +534,52 @@ export default function ContactsDashboard() {
           </div>
         )}
       </div>
+
+      {/* Dialog: confirmar conversão */}
+      <Dialog open={!!convertTarget} onOpenChange={(open) => !open && setConvertTarget(null)}>
+        <DialogContent className="rounded-2xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif">Converter em cliente</DialogTitle>
+            <DialogDescription>
+              Criar <strong>{convertTarget?.name}</strong> no CRM como cliente e abrir uma
+              oportunidade na etapa "Novo contato"? O contato será marcado como convertido.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setConvertTarget(null)} className="rounded-xl">
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConvert}
+              disabled={converting}
+              className="rounded-xl bg-primary text-primary-foreground"
+            >
+              {converting ? 'Convertendo...' : 'Converter'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Aviso de conversão concluída */}
+      <Dialog open={!!convertedMsg} onOpenChange={(open) => !open && setConvertedMsg('')}>
+        <DialogContent className="rounded-2xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              Contato convertido
+            </DialogTitle>
+            <DialogDescription>{convertedMsg}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setConvertedMsg('')}
+              className="rounded-xl bg-primary text-primary-foreground"
+            >
+              Ok
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog for notes */}
       <Dialog open={!!editingNotesItem} onOpenChange={(open) => !open && setEditingNotesItem(null)}>
