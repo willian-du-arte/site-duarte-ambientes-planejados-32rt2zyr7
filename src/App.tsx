@@ -8,6 +8,11 @@ import ContactsDashboard from './pages/Dashboard'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import ErpLayout from './pages/erp/ErpLayout'
+import ErpDashboard from './pages/erp/ErpDashboard'
+import ErpCrm from './pages/erp/ErpCrm'
+import ErpQuotes from './pages/erp/ErpQuotes'
+import { ErpProjects, ErpFinance, ErpTasks } from './pages/erp/ErpModules'
 
 const App = () => (
   <BrowserRouter>
@@ -26,6 +31,21 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+        </Route>
+        {/* Duarte Gestão (ERP interno) */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <ErpLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/erp" element={<ErpDashboard />} />
+          <Route path="/erp/clientes" element={<ErpCrm />} />
+          <Route path="/erp/orcamentos" element={<ErpQuotes />} />
+          <Route path="/erp/projetos" element={<ErpProjects />} />
+          <Route path="/erp/financeiro" element={<ErpFinance />} />
+          <Route path="/erp/tarefas" element={<ErpTasks />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

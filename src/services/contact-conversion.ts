@@ -1,6 +1,6 @@
 // Conversão de contato do site em cliente do CRM + oportunidade na etapa "Novo contato".
 // Marca o contato como convertido (status) e grava o id do cliente — sem duplicar dados.
-import { pb } from '@/lib/pocketbase/client'
+import pb from '@/lib/pocketbase/client'
 import { ErpValidationError } from '@/lib/pocketbase/errors'
 import type { ClientRecord, OpportunityRecord } from '@/types/erp'
 import { OPPORTUNITY_STAGES } from '@/types/erp'
@@ -66,13 +66,4 @@ export async function convertContact(contact: {
   })
 
   return { clientId, opportunityId: opportunity.id }
-}
-
-class ErpValidationError extends Error {
-  fields: Record<string, string>
-  constructor(fields: Record<string, string>) {
-    super(Object.values(fields)[0])
-    this.fields = fields
-    this.name = 'ErpValidationError'
-  }
 }

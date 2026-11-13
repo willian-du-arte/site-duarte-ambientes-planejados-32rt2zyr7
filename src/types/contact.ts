@@ -1,4 +1,4 @@
-export type ContactStatus = 'novo' | 'atendido' | 'orcamento_enviado'
+export type ContactStatus = 'novo' | 'atendido' | 'orcamento_enviado' | 'convertido'
 
 export interface ContactRecord {
   id: string
@@ -7,6 +7,7 @@ export interface ContactRecord {
   need: string
   status: ContactStatus
   notes?: string
+  converted_client?: string
   created: string
   updated: string
 }
