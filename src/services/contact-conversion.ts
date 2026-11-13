@@ -19,7 +19,7 @@ export async function convertContact(contact: {
   name: string
   contact_info: string
   need: string
-  notes: string
+  notes?: string
 }): Promise<{ clientId: string; opportunityId: string }> {
   // 1. Verifica se este contato já não foi convertido (idempotência).
   const existing = await pb.collection('contacts').getOne(contact.id)
