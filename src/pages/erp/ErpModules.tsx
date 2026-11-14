@@ -29,7 +29,6 @@ import {
   deleteAccount,
   deleteTask,
   listAccounts,
-  listClients,
   listProjects,
   listProjectStages,
   listTasks,
@@ -38,24 +37,40 @@ import {
   updateProject,
   updateProjectStage,
   updateTask,
+  toggleTaskDone,
+  type TaskFormInput,
 } from '@/services/erp'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
 import { formatCurrency, formatDate, formatDateTime, isOverdue } from '@/lib/format'
 import {
-  PROJECT_STATUS,
   PROJECT_STATUS_LABELS,
-  STAGE_STATUS_OPTIONS,
   emptyAccountForm,
+  emptyProjectForm,
   emptyTaskForm,
   type AccountFormValues,
   type AccountKind,
-  type AccountRecord,
+  type FinancialAccountRecord,
+  type ProjectFormValues,
   type ProjectRecord,
   type ProjectStageRecord,
-  type TaskFormValues,
+  type ProjectStatus,
   type TaskRecord,
 } from '@/types/erp'
-import { CheckCircle2, FolderKanban, Loader2, Plus, Trash2, Wallet } from 'lucide-react'
+import { CheckCircle2, FolderKanban, Loader2, Plus, Trash2 } from 'lucide-react'
+
+// Saldo em aberto de uma conta (não existe coluna "remaining": é valor - pago).
+const remainingOf = (a: FinancialAccountRecord) =>
+  Math.max((a.amount ?? 0) - (a.paid_amount ?? 0), 0)
+
+function projectFormFromRecord(p: ProjectRecord, status?: ProjectStatus): ProjectFormValues {
+  return {
+    title: p.title ?? '',
+    contracted_value: p.contracted_value ? String(p.contracted_value) : '',
+    status: status ?? p.status,
+    expected_delivery: p.expected_delivery ? p.expected_delivery.slice(0, 10) : '',
+    notes: p.notes ?? '',
+  }
+}
 
 // ---------- Projetos ----------
 
@@ -65,7 +80,7 @@ export function ErpProjects() {
   const [openStages, setOpenStages] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const clientName = useClientMap()
+  const clientName = useClientNames()
 
   const load = async () => {
     const ps = await listProjects()
@@ -95,7 +110,7 @@ export function ErpProjects() {
 
   const advanceStage = async (stage: ProjectStageRecord, projectId: string) => {
     try {
-      await updateProjectStage(stage.id, stage, 'concluida')
+      await updateProjectStage(stage.id, 'concluida')
       await loadStages(projectId)
       await load()
       toast({ title: 'Etapa concluída' })
@@ -108,9 +123,9 @@ export function ErpProjects() {
     }
   }
 
-  const changeStatus = async (p: ProjectRecord, status: string) => {
+  const changeStatus = async (p: ProjectRecord, status: ProjectStatus) => {
     try {
-      await updateProject(p.id, p, { status })
+      await updateProject(p.id, p, projectFormFromRecord(p, status))
       await load()
       toast({ title: 'Situação atualizada' })
     } catch (e) {
@@ -167,7 +182,7 @@ export function ErpProjects() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {PROJECT_STATUS.map((s) => (
+                        {(Object.keys(PROJECT_STATUS_LABELS) as ProjectStatus[]).map((s) => (
                           <SelectItem key={s} value={s}>
                             {PROJECT_STATUS_LABELS[s]}
                           </SelectItem>
@@ -235,7 +250,7 @@ export function ErpProjects() {
                                 className="h-6 text-[10px] text-amber-200 hover:bg-amber-300/10"
                                 onClick={async () => {
                                   try {
-                                    await updateProjectStage(s.id, s, 'em_andamento')
+                                    await updateProjectStage(s.id, 'em_andamento')
                                     await loadStages(p.id)
                                   } catch (e) {
                                     toast({
@@ -328,18 +343,6 @@ function AccountFields({
         />
         {errors.due_date && <p className="mt-1 text-xs text-red-300">{errors.due_date}</p>}
       </div>
-      <div>
-        <Label htmlFor="acc-parcel">Pagamento parcial (R$)</Label>
-        <Input
-          id="acc-parcel"
-          type="number"
-          min="0"
-          step="0.01"
-          value={form.partial_amount}
-          onChange={(e) => set({ partial_amount: e.target.value })}
-          className="bg-white/5"
-        />
-      </div>
       <div className="sm:col-span-2">
         <Label htmlFor="acc-notes">Observações</Label>
         <Textarea
@@ -363,23 +366,23 @@ function validateAccount(form: AccountFormValues): Record<string, string> {
 }
 
 export function ErpFinance() {
-  const [accounts, setAccounts] = useState<AccountRecord[]>([])
+  const [accounts, setAccounts] = useState<FinancialAccountRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [dialog, setDialog] = useState<{
     open: boolean
-    editing: AccountRecord | null
+    editing: FinancialAccountRecord | null
     kind: AccountKind
   }>({ open: false, editing: null, kind: 'receber' })
   const [form, setForm] = useState<AccountFormValues>(emptyAccountForm)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [deleteTarget, setDeleteTarget] = useState<AccountRecord | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<FinancialAccountRecord | null>(null)
   const [confirmPay, setConfirmPay] = useState<{
-    acc: AccountRecord
+    acc: FinancialAccountRecord
     mode: 'total' | 'parcial'
   } | null>(null)
 
-  const clientName = useClientMap()
+  const clientName = useClientNames()
 
   const load = async () => setAccounts(await listAccounts())
 
@@ -405,13 +408,12 @@ export function ErpFinance() {
     setDialog({ open: true, editing: null, kind })
   }
 
-  const openEdit = (a: AccountRecord) => {
+  const openEdit = (a: FinancialAccountRecord) => {
     setForm({
       kind: a.kind as AccountKind,
       description: a.description ?? '',
       amount: a.amount ? String(a.amount) : '',
       due_date: a.due_date ? a.due_date.slice(0, 10) : '',
-      partial_amount: a.partial_amount ? String(a.partial_amount) : '',
       notes: a.notes ?? '',
     })
     setErrors({})
@@ -427,7 +429,7 @@ export function ErpFinance() {
     setSaving(true)
     try {
       if (dialog.editing) {
-        await updateAccount(dialog.editing.id, dialog.editing, form)
+        await updateAccount(dialog.editing.id, form)
         toast({ title: 'Conta atualizada' })
       } else {
         await createAccount(form)
@@ -436,31 +438,55 @@ export function ErpFinance() {
       setDialog({ open: false, editing: null, kind: dialog.kind })
       await load()
     } catch (e) {
-      if (
-        e instanceof
-        (await import('@/lib/pocketbase/errors').then((m) => m.ErpValidationError)).constructor
-      ) {
-        // unreachable fallback
-      }
       toast({ title: 'Erro ao salvar', description: getErrorMessage(e), variant: 'destructive' })
     } finally {
       setSaving(false)
     }
   }
 
-  const doMark = async (acc: AccountRecord, mode: 'total' | 'parcial') => {
-    const valueStr =
-      mode === 'parcial'
-        ? window.prompt('Valor recebido/pago agora (R$):')
-        : String(acc.remaining ?? acc.amount)
-    if (!valueStr) return
+  const doMark = async (acc: FinancialAccountRecord, mode: 'total' | 'parcial') => {
+    const restante = remainingOf(acc)
+    if (mode === 'parcial') {
+      const valueStr = window.prompt('Valor recebido/pago agora (R$):')
+      if (!valueStr) return
+      const value = Number(valueStr)
+      if (!Number.isFinite(value) || value <= 0) {
+        toast({
+          title: 'Valor inválido',
+          description: 'Informe um valor maior que zero.',
+          variant: 'destructive',
+        })
+        return
+      }
+      if (value > restante) {
+        toast({
+          title: 'Valor maior que o saldo',
+          description: `O saldo em aberto é ${formatCurrency(restante)}. Use a baixa total.`,
+          variant: 'destructive',
+        })
+        return
+      }
+      setSaving(true)
+      try {
+        await markAccountPaid(acc.id, acc, value)
+        toast({ title: 'Pagamento parcial registrado' })
+        setConfirmPay(null)
+        await load()
+      } catch (e) {
+        toast({
+          title: 'Erro ao registrar',
+          description: getErrorMessage(e),
+          variant: 'destructive',
+        })
+      } finally {
+        setSaving(false)
+      }
+      return
+    }
     setSaving(true)
     try {
-      await markAccountPaid(
-        acc,
-        mode === 'total' ? (acc.remaining ?? acc.amount) : Number(valueStr),
-      )
-      toast({ title: mode === 'total' ? 'Baixa total registrada' : 'Parcial registrada' })
+      await markAccountPaid(acc.id, acc, restante)
+      toast({ title: 'Baixa total registrada' })
       setConfirmPay(null)
       await load()
     } catch (e) {
@@ -495,10 +521,10 @@ export function ErpFinance() {
 
   const receber = accounts.filter((a) => a.kind === 'receber')
   const pagar = accounts.filter((a) => a.kind === 'pagar')
-  const sum = (rows: AccountRecord[]) =>
-    rows.reduce((acc, a) => acc + (a.status === 'pago' ? 0 : (a.remaining ?? a.amount ?? 0)), 0)
+  const sum = (rows: FinancialAccountRecord[]) =>
+    rows.reduce((acc, a) => acc + (a.paid ? 0 : remainingOf(a)), 0)
 
-  const renderTable = (rows: AccountRecord[], kind: AccountKind) => (
+  const renderTable = (rows: FinancialAccountRecord[], kind: AccountKind) => (
     <div className="overflow-x-auto rounded-lg border border-white/10">
       <table className="w-full text-sm">
         <thead>
@@ -512,7 +538,7 @@ export function ErpFinance() {
         </thead>
         <tbody>
           {rows.map((a) => {
-            const overdue = a.status !== 'pago' && a.due_date && isOverdue(a.due_date)
+            const overdue = !a.paid && a.due_date && isOverdue(a.due_date)
             return (
               <tr
                 key={a.id}
@@ -527,23 +553,23 @@ export function ErpFinance() {
                 </td>
                 <td className="px-3 py-2 text-zinc-100">
                   {formatCurrency(a.amount ?? 0)}
-                  {(a.partial_amount ?? 0) > 0 && a.status !== 'pago' && (
+                  {!a.paid && (a.paid_amount ?? 0) > 0 && (
                     <p className="text-[11px] text-emerald-300">
-                      faltam {formatCurrency(a.remaining ?? 0)}
+                      faltam {formatCurrency(remainingOf(a))}
                     </p>
                   )}
                 </td>
                 <td className="px-3 py-2">
                   <Badge
                     className={
-                      a.status === 'pago'
+                      a.paid
                         ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
                         : overdue
                           ? 'border-red-400/30 bg-red-400/10 text-red-300'
                           : 'border-white/15 bg-white/5 text-zinc-300'
                     }
                   >
-                    {a.status === 'pago'
+                    {a.paid
                       ? a.paid_at
                         ? `pago ${formatDate(a.paid_at)}`
                         : 'pago'
@@ -554,7 +580,7 @@ export function ErpFinance() {
                 </td>
                 <td className="px-3 py-2">
                   <div className="flex justify-end gap-1">
-                    {a.status !== 'pago' && (
+                    {!a.paid && (
                       <>
                         <Button
                           size="sm"
@@ -697,7 +723,7 @@ export function ErpFinance() {
             </DialogTitle>
             <DialogDescription className="text-zinc-400">
               {confirmPay?.mode === 'total'
-                ? `Confirmar baixa total de ${formatCurrency(confirmPay?.acc.remaining ?? confirmPay?.acc.amount ?? 0)} — "${confirmPay?.acc.description}"?`
+                ? `Confirmar baixa total de ${formatCurrency(remainingOf(confirmPay?.acc ?? ({} as FinancialAccountRecord)))} — "${confirmPay?.acc.description}"?`
                 : `Registrar pagamento parcial em "${confirmPay?.acc.description}". O restante continua em aberto.`}
             </DialogDescription>
           </DialogHeader>
@@ -754,11 +780,11 @@ function TaskFields({
   setForm,
   errors,
 }: {
-  form: TaskFormValues
-  setForm: (f: TaskFormValues) => void
+  form: TaskFormInput
+  setForm: (f: TaskFormInput) => void
   errors: Record<string, string>
 }) {
-  const set = (patch: Partial<TaskFormValues>) => setForm({ ...form, ...patch })
+  const set = (patch: Partial<TaskFormInput>) => setForm({ ...form, ...patch })
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <div className="sm:col-span-2">
@@ -800,8 +826,8 @@ function TaskFields({
         <Label htmlFor="task-notes">Descrição</Label>
         <Textarea
           id="task-notes"
-          value={form.notes}
-          onChange={(e) => set({ notes: e.target.value })}
+          value={form.description}
+          onChange={(e) => set({ description: e.target.value })}
           rows={2}
           className="bg-white/5"
         />
@@ -836,11 +862,11 @@ export function ErpTasks() {
     open: false,
     editing: null,
   })
-  const [form, setForm] = useState<TaskFormValues>(emptyTaskForm)
+  const [form, setForm] = useState<TaskFormInput>(emptyTaskForm)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [deleteTarget, setDeleteTarget] = useState<TaskRecord | null>(null)
 
-  const clientName = useClientMap()
+  const clientName = useClientNames()
   const projectName = useProjectMap()
 
   const load = async () => setTasks(await listTasks())
@@ -869,7 +895,7 @@ export function ErpTasks() {
     setSaving(true)
     try {
       if (dialog.editing) {
-        await updateTask(dialog.editing.id, dialog.editing, form)
+        await updateTask(dialog.editing.id, form)
         toast({ title: 'Tarefa atualizada' })
       } else {
         await createTask(form)
@@ -886,7 +912,7 @@ export function ErpTasks() {
 
   const toggleDone = async (t: TaskRecord) => {
     try {
-      await updateTask(t.id, t, { done: !t.done })
+      await toggleTaskDone(t.id, !t.done)
       await load()
     } catch (e) {
       toast({ title: 'Erro ao atualizar', description: getErrorMessage(e), variant: 'destructive' })
@@ -935,7 +961,7 @@ export function ErpTasks() {
               ? clientName(t.client)
               : 'sem vínculo'}
           {t.due_date && ` · prazo ${formatDate(t.due_date)}`}
-          {t.notes ? ` · ${t.notes}` : ''}
+          {t.description ? ` · ${t.description}` : ''}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
@@ -946,9 +972,10 @@ export function ErpTasks() {
           onClick={() => {
             setForm({
               title: t.title ?? '',
+              description: t.description ?? '',
               due_date: t.due_date ? t.due_date.slice(0, 10) : '',
+              priority: t.priority,
               project: t.project ?? '',
-              notes: t.notes ?? '',
             })
             setErrors({})
             setDialog({ open: true, editing: t })

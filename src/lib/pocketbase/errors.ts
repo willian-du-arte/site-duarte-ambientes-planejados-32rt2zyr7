@@ -2,16 +2,6 @@ import { ClientResponseError } from 'pocketbase'
 
 export type FieldErrors = Record<string, string>
 
-/** Erro de validação de formulário do ERP, com mensagem por campo. */
-export class ErpValidationError extends Error {
-  fields: Record<string, string>
-  constructor(fields: Record<string, string>) {
-    super('Validação')
-    this.name = 'ErpValidationError'
-    this.fields = fields
-  }
-}
-
 export function extractFieldErrors(error: unknown): FieldErrors {
   if (!(error instanceof ClientResponseError)) return {}
   const data = error.response?.data
@@ -30,10 +20,20 @@ export function extractFieldErrors(error: unknown): FieldErrors {
   return errors
 }
 
+export class ErpValidationError extends Error {
+  fields: FieldErrors
+
+  constructor(fields: FieldErrors, message = 'Dados inválidos.') {
+    super(message)
+    this.name = 'ErpValidationError'
+    this.fields = fields
+  }
+}
+
 export function getErrorMessage(error: unknown): string {
   if (!(error instanceof ClientResponseError)) {
-    return error instanceof Error ? error.message : 'Erro inesperado. Tente novamente.'
+    return error instanceof Error ? error.message : 'An unexpected error occurred.'
   }
   const msgs = Object.values(extractFieldErrors(error))
-  return msgs.length > 0 ? msgs.join(' ') : error.message || 'Erro inesperado. Tente novamente.'
+  return msgs.length > 0 ? msgs.join(' ') : error.message || 'An unexpected error occurred.'
 }
