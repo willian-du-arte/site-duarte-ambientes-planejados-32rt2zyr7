@@ -459,8 +459,11 @@ export default function Index() {
          ========================================================= */}
       <section
         id="contato"
+        aria-labelledby="orcamento"
         className="py-20 md:py-24 bg-gradient-to-b from-wood-50 via-wood-50 to-background border-t border-border"
       >
+        {/* âncora invisível para links externos (/#orcamento) */}
+        <span id="orcamento" aria-hidden="true" className="sr-only" />
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             {/* Informações de contato do lado esquerdo */}

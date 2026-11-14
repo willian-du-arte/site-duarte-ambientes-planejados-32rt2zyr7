@@ -6,6 +6,7 @@ import Index from './pages/Index'
 import LoginPage from './pages/Login'
 import ContactsDashboard from './pages/Dashboard'
 import NotFound from './pages/NotFound'
+import InstagramPostPage from './pages/InstagramPost'
 import Layout from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import ErpLayout from './pages/erp/ErpLayout'
@@ -23,6 +24,7 @@ const App = () => (
         <Route element={<Layout />}>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/instagram" element={<InstagramPostPage />} />
           <Route
             path="/painel"
             element={

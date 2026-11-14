@@ -2,12 +2,12 @@ import { ClientResponseError } from 'pocketbase'
 
 export type FieldErrors = Record<string, string>
 
-/** Erro de validação do ERP: carrega os erros por campo vindos do PocketBase. */
+/** Erro de validação do ERP com os erros por campo vindos do PocketBase. */
 export class ErpValidationError extends Error {
-  fields: FieldErrors
+  readonly fields: FieldErrors
 
   constructor(fields: FieldErrors) {
-    super(Object.values(fields).join(' ') || 'Validação falhou.')
+    super('Erro de validação do formulário')
     this.name = 'ErpValidationError'
     this.fields = fields
   }
