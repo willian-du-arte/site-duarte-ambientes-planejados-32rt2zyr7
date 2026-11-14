@@ -1,7 +1,8 @@
 // Camada de acesso a dados do Duarte Gestão (ERP) sobre PocketBase.
 // Toda escrita em entidades principais grava um registro em `activity_log`.
 import pb from '@/lib/pocketbase/client'
-import { extractFieldErrors } from '@/lib/pocketbase/errors'
+import { ErpValidationError, extractFieldErrors } from '@/lib/pocketbase/errors'
+
 import type {
   ActivityLogRecord,
   ClientFormValues,
@@ -21,14 +22,6 @@ import type {
   TaskFormValues,
   TaskRecord,
 } from '@/types/erp'
-
-export class ErpValidationError extends Error {
-  fields: Record<string, string>
-  constructor(fields: Record<string, string>) {
-    super('Validação')
-    this.fields = fields
-  }
-}
 
 function throwPbError(error: unknown): never {
   if (error && typeof error === 'object' && 'response' in error) {

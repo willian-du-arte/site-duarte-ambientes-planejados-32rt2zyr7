@@ -67,6 +67,12 @@ const STATUS_LABELS: Record<
     text: 'text-emerald-900 dark:text-emerald-300',
     dot: 'bg-emerald-500',
   },
+  convertido: {
+    label: 'Convertido em cliente',
+    bg: 'bg-violet-100 dark:bg-violet-950/40 border-violet-300 dark:border-violet-800',
+    text: 'text-violet-900 dark:text-violet-300',
+    dot: 'bg-violet-500',
+  },
 }
 
 export default function ContactsDashboard() {
@@ -496,6 +502,12 @@ export default function ContactsDashboard() {
                               <span className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                                 <span>Orçamento Enviado</span>
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="convertido">
+                              <span className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-violet-500" />
+                                <span>Convertido em cliente</span>
                               </span>
                             </SelectItem>
                           </SelectContent>
