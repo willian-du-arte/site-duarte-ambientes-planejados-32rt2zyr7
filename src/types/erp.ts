@@ -208,6 +208,7 @@ export interface QuoteFormValues {
   payment_terms: string
   deadline_days: string
   status: QuoteStatus
+  items?: QuoteItem[]
 }
 
 export const emptyQuoteForm: QuoteFormValues = {
@@ -228,6 +229,7 @@ export const emptyQuoteForm: QuoteFormValues = {
   payment_terms: '',
   deadline_days: '',
   status: 'rascunho',
+  items: [],
 }
 
 // ---------- Projetos ----------
