@@ -177,7 +177,10 @@ export function ErpProjects() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Select value={p.status} onValueChange={(v) => changeStatus(p, v)}>
+                    <Select
+                      value={p.status}
+                      onValueChange={(v) => changeStatus(p, v as ProjectStatus)}
+                    >
                       <SelectTrigger className="h-8 w-44 bg-white/5 text-xs">
                         <SelectValue />
                       </SelectTrigger>

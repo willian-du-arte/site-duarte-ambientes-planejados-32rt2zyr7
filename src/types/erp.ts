@@ -126,6 +126,7 @@ export type OpportunityRecord = {
 
 export interface OpportunityFormValues {
   title: string
+  description?: string
   value: string
   stage: FunnelStage
   next_action: string

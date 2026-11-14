@@ -30,6 +30,7 @@ import {
   createQuote,
   deleteQuote,
   listOpportunities,
+  listQuotes,
   listQuoteVersions,
   quoteTotals,
   updateQuote,
