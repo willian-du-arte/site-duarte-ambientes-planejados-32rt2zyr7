@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T19:13:14.061Z",
+  "generatedAt": "2026-11-16T18:48:17.543Z",
   "collections": [
     {
       "name": "users",
@@ -294,6 +294,18 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "payment_terms",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "delivery_time",
+          "type": "text",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": []
@@ -813,6 +825,30 @@
           "required": false,
           "system": false,
           "collectionRef": "quotes"
+        },
+        {
+          "name": "responsible",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "materials_needed",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "suppliers_involved",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "current_stage",
+          "type": "number",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": ["CREATE INDEX idx_projects_status ON projects (status)"]
@@ -1097,6 +1133,12 @@
           "required": false,
           "system": false,
           "collectionRef": "purchases"
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
@@ -1185,6 +1227,25 @@
           "required": false,
           "system": false,
           "collectionRef": "projects"
+        },
+        {
+          "name": "quantity",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "unit_price",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "payment_status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["pendente", "parcial", "pago"]
         }
       ],
       "indexes": ["CREATE INDEX idx_purchases_status ON purchases (status)"]
@@ -1323,6 +1384,19 @@
           "required": false,
           "system": false,
           "collectionRef": "purchases"
+        },
+        {
+          "name": "unit_cost",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "project",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "projects"
         }
       ],
       "indexes": []
@@ -1405,6 +1479,86 @@
         "CREATE INDEX idx_activity_log_entity ON activity_log (entity, entity_id)",
         "CREATE INDEX idx_activity_log_created ON activity_log (created DESC)"
       ]
+    },
+    {
+      "name": "contracts",
+      "type": "base",
+      "apiRules": {
+        "list": null,
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [],
+      "indexes": []
+    },
+    {
+      "name": "agenda_events",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": null,
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [],
+      "indexes": []
+    },
+    {
+      "name": "cost_items",
+      "type": "base",
+      "apiRules": {
+        "list": null,
+        "view": null,
+        "create": "@request.auth.id != ''",
+        "update": null,
+        "delete": null
+      },
+      "fields": [],
+      "indexes": []
+    },
+    {
+      "name": "finance_categories",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "kind",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["receita", "despesa"]
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": ["CREATE INDEX idx_finance_categories_kind ON finance_categories (kind)"]
     }
   ]
 }

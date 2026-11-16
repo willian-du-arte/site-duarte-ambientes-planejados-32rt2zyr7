@@ -2,17 +2,6 @@ import { ClientResponseError } from 'pocketbase'
 
 export type FieldErrors = Record<string, string>
 
-/** Erro de validação do ERP com os erros por campo vindos do PocketBase. */
-export class ErpValidationError extends Error {
-  readonly fields: FieldErrors
-
-  constructor(fields: FieldErrors) {
-    super('Erro de validação do formulário')
-    this.name = 'ErpValidationError'
-    this.fields = fields
-  }
-}
-
 export function extractFieldErrors(error: unknown): FieldErrors {
   if (!(error instanceof ClientResponseError)) return {}
   const data = error.response?.data
