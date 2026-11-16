@@ -14,6 +14,9 @@ import ErpDashboard from './pages/erp/ErpDashboard'
 import ErpCrm from './pages/erp/ErpCrm'
 import ErpQuotes from './pages/erp/ErpQuotes'
 import { ErpProjects, ErpFinance, ErpTasks } from './pages/erp/ErpModules'
+import { ErpSuppliers } from './pages/erp/ErpSuppliers'
+import { ErpPurchases } from './pages/erp/ErpPurchases'
+import { ErpInventory } from './pages/erp/ErpInventory'
 
 const App = () => (
   <BrowserRouter>
@@ -48,6 +51,9 @@ const App = () => (
           <Route path="/erp/projetos" element={<ErpProjects />} />
           <Route path="/erp/financeiro" element={<ErpFinance />} />
           <Route path="/erp/tarefas" element={<ErpTasks />} />
+          <Route path="/erp/fornecedores" element={<ErpSuppliers />} />
+          <Route path="/erp/compras" element={<ErpPurchases />} />
+          <Route path="/erp/estoque" element={<ErpInventory />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

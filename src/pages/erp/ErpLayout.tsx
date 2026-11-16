@@ -12,6 +12,9 @@ import {
   CheckSquare,
   LogOut,
   Hammer,
+  Truck,
+  ShoppingCart,
+  Boxes,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -24,6 +27,9 @@ const NAV_ITEMS = [
   { to: '/erp/projetos', label: 'Projetos', icon: FolderKanban, end: false },
   { to: '/erp/financeiro', label: 'Financeiro', icon: Wallet, end: false },
   { to: '/erp/tarefas', label: 'Tarefas', icon: CheckSquare, end: false },
+  { to: '/erp/fornecedores', label: 'Fornecedores', icon: Truck, end: false },
+  { to: '/erp/compras', label: 'Compras', icon: ShoppingCart, end: false },
+  { to: '/erp/estoque', label: 'Estoque', icon: Boxes, end: false },
 ]
 
 export default function ErpLayout() {
