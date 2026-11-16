@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T19:06:48.203Z",
+  "generatedAt": "2026-11-16T19:27:46.609Z",
   "collections": [
     {
       "name": "users",
@@ -1481,32 +1481,6 @@
       ]
     },
     {
-      "name": "contracts",
-      "type": "base",
-      "apiRules": {
-        "list": null,
-        "view": "@request.auth.id != ''",
-        "create": "@request.auth.id != ''",
-        "update": "@request.auth.id != ''",
-        "delete": "@request.auth.id != ''"
-      },
-      "fields": [],
-      "indexes": []
-    },
-    {
-      "name": "agenda_events",
-      "type": "base",
-      "apiRules": {
-        "list": "@request.auth.id != ''",
-        "view": null,
-        "create": "@request.auth.id != ''",
-        "update": "@request.auth.id != ''",
-        "delete": "@request.auth.id != ''"
-      },
-      "fields": [],
-      "indexes": []
-    },
-    {
       "name": "cost_items",
       "type": "base",
       "apiRules": {
@@ -1559,6 +1533,210 @@
         }
       ],
       "indexes": ["CREATE INDEX idx_finance_categories_kind ON finance_categories (kind)"]
+    },
+    {
+      "name": "contracts",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["ativo", "encerrado", "cancelado"]
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "value",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "contract_date",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "deadline",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "payment_terms",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "documents",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "client",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "clients"
+        },
+        {
+          "name": "project",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "projects"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_contracts_project ON contracts (project)",
+        "CREATE INDEX idx_contracts_status ON contracts (status)"
+      ]
+    },
+    {
+      "name": "agenda_events",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "kind",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "reuniao",
+            "visita_tecnica",
+            "medicao",
+            "entrega",
+            "instalacao",
+            "pagamento",
+            "compra",
+            "prazo"
+          ]
+        },
+        {
+          "name": "event_date",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "time",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "done",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "done_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "client",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "clients"
+        },
+        {
+          "name": "project",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "projects"
+        },
+        {
+          "name": "supplier",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "suppliers"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_agenda_events_date ON agenda_events (event_date)",
+        "CREATE INDEX idx_agenda_events_done ON agenda_events (done)"
+      ]
     }
   ]
 }

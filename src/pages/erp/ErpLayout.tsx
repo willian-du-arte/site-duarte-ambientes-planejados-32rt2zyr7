@@ -15,6 +15,8 @@ import {
   Truck,
   ShoppingCart,
   Boxes,
+  ScrollText,
+  CalendarClock,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -30,6 +32,8 @@ const NAV_ITEMS = [
   { to: '/erp/fornecedores', label: 'Fornecedores', icon: Truck, end: false },
   { to: '/erp/compras', label: 'Compras', icon: ShoppingCart, end: false },
   { to: '/erp/estoque', label: 'Estoque', icon: Boxes, end: false },
+  { to: '/erp/contratos', label: 'Contratos', icon: ScrollText, end: false },
+  { to: '/erp/agenda', label: 'Agenda', icon: CalendarClock, end: false },
 ]
 
 export default function ErpLayout() {

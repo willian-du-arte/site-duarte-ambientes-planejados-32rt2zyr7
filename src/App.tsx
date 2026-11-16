@@ -17,6 +17,8 @@ import { ErpProjects, ErpFinance, ErpTasks } from './pages/erp/ErpModules'
 import { ErpSuppliers } from './pages/erp/ErpSuppliers'
 import { ErpPurchases } from './pages/erp/ErpPurchases'
 import { ErpInventory } from './pages/erp/ErpInventory'
+import ErpContracts from './pages/erp/ErpContracts'
+import ErpAgenda from './pages/erp/ErpAgenda'
 
 const App = () => (
   <BrowserRouter>
@@ -54,6 +56,8 @@ const App = () => (
           <Route path="/erp/fornecedores" element={<ErpSuppliers />} />
           <Route path="/erp/compras" element={<ErpPurchases />} />
           <Route path="/erp/estoque" element={<ErpInventory />} />
+          <Route path="/erp/contratos" element={<ErpContracts />} />
+          <Route path="/erp/agenda" element={<ErpAgenda />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

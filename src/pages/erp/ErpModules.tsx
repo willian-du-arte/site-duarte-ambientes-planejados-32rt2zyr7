@@ -40,8 +40,11 @@ import {
   toggleTaskDone,
   type TaskFormInput,
 } from '@/services/erp'
+import { createContract } from '@/services/contracts'
+import { emptyContractForm, type ContractFormValues } from '@/types/contracts'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
-import { formatCurrency, formatDate, formatDateTime, isOverdue } from '@/lib/format'
+import { formatCurrency, formatDate, formatDateTime, isOverdue, todayISO } from '@/lib/format'
+import { useNavigate } from 'react-router-dom'
 import {
   PROJECT_STATUS_LABELS,
   emptyAccountForm,
@@ -56,7 +59,7 @@ import {
   type ProjectStatus,
   type TaskRecord,
 } from '@/types/erp'
-import { CheckCircle2, FolderKanban, Loader2, Plus, Trash2 } from 'lucide-react'
+import { CheckCircle2, FolderKanban, Loader2, Plus, ScrollText, Trash2 } from 'lucide-react'
 
 // Saldo em aberto de uma conta (não existe coluna "remaining": é valor - pago).
 const remainingOf = (a: FinancialAccountRecord) =>
@@ -75,6 +78,7 @@ function projectFormFromRecord(p: ProjectRecord, status?: ProjectStatus): Projec
 // ---------- Projetos ----------
 
 export function ErpProjects() {
+  const navigate = useNavigate()
   const [projects, setProjects] = useState<ProjectRecord[]>([])
   const [stagesByProject, setStagesByProject] = useState<Record<string, ProjectStageRecord[]>>({})
   const [openStages, setOpenStages] = useState<string | null>(null)
@@ -120,6 +124,36 @@ export function ErpProjects() {
         description: getErrorMessage(e),
         variant: 'destructive',
       })
+    }
+  }
+
+  const [generatingId, setGenerating] = useState<string | null>(null)
+
+  const generateContract = async (p: ProjectRecord) => {
+    try {
+      setGenerating(p.id)
+      const form: ContractFormValues = {
+        ...emptyContractForm,
+        title: `Contrato — ${p.title}`,
+        client: p.client,
+        project: p.id,
+        description: p.description || `Execução do projeto ${p.title}.`,
+        value: p.contracted_value ? String(p.contracted_value) : '',
+        contract_date: todayISO(),
+        status: 'ativo',
+        notes: 'Gerado a partir do projeto aprovado.',
+      }
+      await createContract(form)
+      toast({ title: 'Contrato criado', description: 'Veja em Contratos no menu lateral.' })
+      navigate('/erp/contratos')
+    } catch (e) {
+      toast({
+        title: 'Erro ao gerar contrato',
+        description: getErrorMessage(e),
+        variant: 'destructive',
+      })
+    } finally {
+      setGenerating(null)
     }
   }
 
@@ -192,6 +226,21 @@ export function ErpProjects() {
                         ))}
                       </SelectContent>
                     </Select>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 border-white/15 text-zinc-200 hover:bg-white/10"
+                      disabled={generatingId === p.id}
+                      onClick={() => generateContract(p)}
+                      title="Gerar contrato a partir deste projeto"
+                    >
+                      {generatingId === p.id ? (
+                        <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <ScrollText className="mr-1 h-3.5 w-3.5" />
+                      )}
+                      Gerar contrato
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
