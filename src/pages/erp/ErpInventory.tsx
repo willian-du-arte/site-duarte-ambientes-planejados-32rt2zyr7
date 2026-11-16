@@ -418,7 +418,7 @@ export function ErpInventory() {
     ;(async () => {
       try {
         await load()
-        const [{ listProjects, listSuppliers }, { listPurchases: lp }] = await Promise.all([
+        const [{ listProjects }, { listPurchases: lp, listSuppliers }] = await Promise.all([
           import('@/services/erp'),
           import('@/services/inventory'),
         ])

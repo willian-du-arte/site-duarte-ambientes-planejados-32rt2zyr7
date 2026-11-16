@@ -195,6 +195,7 @@ export interface MovementRecord {
 }
 
 export interface MovementFormValues {
+  item: string
   kind: MovementKind
   quantity: string
   unit_cost: string
@@ -204,6 +205,7 @@ export interface MovementFormValues {
 }
 
 export const emptyMovementForm: MovementFormValues = {
+  item: '',
   kind: 'entrada',
   quantity: '',
   unit_cost: '',
@@ -211,6 +213,9 @@ export const emptyMovementForm: MovementFormValues = {
   purchase_id: '',
   reason: '',
 }
+
+// Alias usado por services/inventory.ts (mesma coleção inventory_movements).
+export type InventoryMovementRecord = MovementRecord
 
 export function isLowStock(i: Pick<InventoryItemRecord, 'quantity' | 'min_quantity'>): boolean {
   return i.min_quantity != null && i.min_quantity > 0 && (i.quantity ?? 0) <= i.min_quantity

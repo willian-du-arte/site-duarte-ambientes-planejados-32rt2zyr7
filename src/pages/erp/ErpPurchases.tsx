@@ -24,7 +24,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ErpEmptyState, ErpPageHeader, ErpStatCard } from './ErpShared'
-import { useClientNames } from './QuoteClientSelect'
 import {
   createPurchase,
   deletePurchase,
@@ -38,6 +37,7 @@ import { getErrorMessage } from '@/lib/pocketbase/errors'
 import { formatCurrency, formatDate, todayISO } from '@/lib/format'
 import {
   emptyPurchaseForm,
+  PURCHASE_PAYMENT_LABELS,
   PURCHASE_STATUS_LABELS,
   type PurchaseFormValues,
   type PurchaseRecord,
@@ -279,7 +279,7 @@ export function ErpPurchases() {
         const { listSuppliers: sup } = await import('@/services/inventory')
         setSuppliers((await sup()).map((s) => ({ id: s.id, name: s.name })))
         const { listProjects } = await import('@/services/erp')
-        setProjects((await listProjects()).map((p) => ({ id: p.id, name: p.name })))
+        setProjects((await listProjects()).map((p) => ({ id: p.id, name: p.title })))
         setDepsLoaded(true)
       } catch (e) {
         toast({
