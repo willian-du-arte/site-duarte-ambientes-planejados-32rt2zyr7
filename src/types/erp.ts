@@ -282,6 +282,10 @@ export interface ProjectRecord {
   notes?: string
   client: string
   quote?: string
+  responsible?: string
+  materials_needed?: string
+  suppliers_involved?: string
+  current_stage?: number
   created: string
   updated: string
   expand?: { client?: ClientRecord }

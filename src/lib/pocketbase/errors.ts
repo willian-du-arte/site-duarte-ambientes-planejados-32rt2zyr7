@@ -2,15 +2,6 @@ import { ClientResponseError } from 'pocketbase'
 
 export type FieldErrors = Record<string, string>
 
-export class ErpValidationError extends Error {
-  fields: FieldErrors
-  constructor(fields: FieldErrors) {
-    super('Erro de validação do ERP')
-    this.name = 'ErpValidationError'
-    this.fields = fields
-  }
-}
-
 export function extractFieldErrors(error: unknown): FieldErrors {
   if (!(error instanceof ClientResponseError)) return {}
   const data = error.response?.data
@@ -29,10 +20,21 @@ export function extractFieldErrors(error: unknown): FieldErrors {
   return errors
 }
 
+// Erro de validação de campo do ERP (payload inválido rejeitado pelo PocketBase).
+// Já foi apagado por engano antes — é importado por 8+ arquivos do ERP.
+export class ErpValidationError extends Error {
+  fields: FieldErrors
+  constructor(fields: FieldErrors) {
+    super(Object.values(fields)[0] || 'Dados inválidos')
+    this.name = 'ErpValidationError'
+    this.fields = fields
+  }
+}
+
 export function getErrorMessage(error: unknown): string {
   if (!(error instanceof ClientResponseError)) {
-    return error instanceof Error ? error.message : 'Ocorreu um erro inesperado.'
+    return error instanceof Error ? error.message : 'An unexpected error occurred.'
   }
   const msgs = Object.values(extractFieldErrors(error))
-  return msgs.length > 0 ? msgs.join(' ') : error.message || 'Ocorreu um erro inesperado.'
+  return msgs.length > 0 ? msgs.join(' ') : error.message || 'An unexpected error occurred.'
 }

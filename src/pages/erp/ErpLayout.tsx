@@ -17,6 +17,7 @@ import {
   Boxes,
   ScrollText,
   CalendarClock,
+  HardHat,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { to: '/erp/clientes', label: 'Clientes / CRM', icon: Users, end: false },
   { to: '/erp/orcamentos', label: 'Orçamentos', icon: FileText, end: false },
   { to: '/erp/projetos', label: 'Projetos', icon: FolderKanban, end: false },
+  { to: '/erp/producao', label: 'Produção', icon: HardHat, end: false },
   { to: '/erp/financeiro', label: 'Financeiro', icon: Wallet, end: false },
   { to: '/erp/tarefas', label: 'Tarefas', icon: CheckSquare, end: false },
   { to: '/erp/fornecedores', label: 'Fornecedores', icon: Truck, end: false },
