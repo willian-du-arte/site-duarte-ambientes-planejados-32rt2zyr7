@@ -18,6 +18,8 @@ import {
   ScrollText,
   CalendarClock,
   HardHat,
+  TrendingUp,
+  BarChart3,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -36,6 +38,8 @@ const NAV_ITEMS = [
   { to: '/erp/estoque', label: 'Estoque', icon: Boxes, end: false },
   { to: '/erp/contratos', label: 'Contratos', icon: ScrollText, end: false },
   { to: '/erp/agenda', label: 'Agenda', icon: CalendarClock, end: false },
+  { to: '/erp/rentabilidade', label: 'Rentabilidade', icon: TrendingUp, end: false },
+  { to: '/erp/relatorios', label: 'Relatórios', icon: BarChart3, end: false },
 ]
 
 export default function ErpLayout() {

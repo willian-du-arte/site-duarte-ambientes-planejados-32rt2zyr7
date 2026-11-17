@@ -21,6 +21,8 @@ import { ErpInventory } from './pages/erp/ErpInventory'
 import ErpContracts from './pages/erp/ErpContracts'
 import ErpAgenda from './pages/erp/ErpAgenda'
 import ErpProduction from './pages/erp/ErpProduction'
+import ErpProfitability from './pages/erp/ErpProfitability'
+import ErpReports from './pages/erp/ErpReports'
 
 const App = () => (
   <BrowserRouter>
@@ -61,6 +63,8 @@ const App = () => (
           <Route path="/erp/contratos" element={<ErpContracts />} />
           <Route path="/erp/agenda" element={<ErpAgenda />} />
           <Route path="/erp/producao" element={<ErpProduction />} />
+          <Route path="/erp/rentabilidade" element={<ErpProfitability />} />
+          <Route path="/erp/relatorios" element={<ErpReports />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

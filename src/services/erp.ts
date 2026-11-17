@@ -496,7 +496,7 @@ export async function deleteProject(id: string): Promise<void> {
 }
 
 export async function listProjects(): Promise<ProjectRecord[]> {
-  return pb.collection('projects').getFullList<ProjectRecord>({ sort: '-created' })
+  return pb.collection('projects').getFullList<ProjectRecord>({ sort: '-created', expand: 'quote' })
 }
 
 export async function listProjectStages(projectId?: string): Promise<ProjectStageRecord[]> {
