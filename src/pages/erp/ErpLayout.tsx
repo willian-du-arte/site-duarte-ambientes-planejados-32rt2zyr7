@@ -20,6 +20,8 @@ import {
   HardHat,
   TrendingUp,
   BarChart3,
+  LifeBuoy,
+  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -40,6 +42,8 @@ const NAV_ITEMS = [
   { to: '/erp/agenda', label: 'Agenda', icon: CalendarClock, end: false },
   { to: '/erp/rentabilidade', label: 'Rentabilidade', icon: TrendingUp, end: false },
   { to: '/erp/relatorios', label: 'Relatórios', icon: BarChart3, end: false },
+  { to: '/erp/posvenda', label: 'Pós-venda', icon: LifeBuoy, end: false },
+  { to: '/erp/assistente', label: 'Assistente', icon: Sparkles, end: false },
 ]
 
 export default function ErpLayout() {

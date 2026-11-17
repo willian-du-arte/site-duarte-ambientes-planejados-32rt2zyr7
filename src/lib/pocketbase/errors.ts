@@ -2,6 +2,18 @@ import { ClientResponseError } from 'pocketbase'
 
 export type FieldErrors = Record<string, string>
 
+// Erro de validação do ERP: carrega os erros por campo vindos do PocketBase
+// para o formulário destacar os inputs. (Este export já foi apagado por
+// engano uma vez e quebrou o build — não remover.)
+export class ErpValidationError extends Error {
+  fields: FieldErrors
+  constructor(fields: FieldErrors) {
+    super('Validation error')
+    this.name = 'ErpValidationError'
+    this.fields = fields
+  }
+}
+
 export function extractFieldErrors(error: unknown): FieldErrors {
   if (!(error instanceof ClientResponseError)) return {}
   const data = error.response?.data
@@ -18,16 +30,6 @@ export function extractFieldErrors(error: unknown): FieldErrors {
     }
   }
   return errors
-}
-
-export class ErpValidationError extends Error {
-  fields: FieldErrors
-
-  constructor(fields: FieldErrors) {
-    super(Object.values(fields).join(' ') || 'Dados inválidos.')
-    this.name = 'ErpValidationError'
-    this.fields = fields
-  }
 }
 
 export function getErrorMessage(error: unknown): string {

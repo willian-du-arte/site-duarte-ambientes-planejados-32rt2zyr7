@@ -23,6 +23,8 @@ import ErpAgenda from './pages/erp/ErpAgenda'
 import ErpProduction from './pages/erp/ErpProduction'
 import ErpProfitability from './pages/erp/ErpProfitability'
 import ErpReports from './pages/erp/ErpReports'
+import ErpAfterSales from './pages/erp/ErpAfterSales'
+import ErpAssistant from './pages/erp/ErpAssistant'
 
 const App = () => (
   <BrowserRouter>
@@ -65,6 +67,8 @@ const App = () => (
           <Route path="/erp/producao" element={<ErpProduction />} />
           <Route path="/erp/rentabilidade" element={<ErpProfitability />} />
           <Route path="/erp/relatorios" element={<ErpReports />} />
+          <Route path="/erp/posvenda" element={<ErpAfterSales />} />
+          <Route path="/erp/assistente" element={<ErpAssistant />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

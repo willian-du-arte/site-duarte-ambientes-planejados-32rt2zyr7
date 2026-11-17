@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-17T11:07:59.664Z",
+  "generatedAt": "2026-11-17T11:14:42.323Z",
   "collections": [
     {
       "name": "users",
@@ -1799,6 +1799,113 @@
         }
       ],
       "indexes": ["CREATE INDEX idx_cost_items_project ON cost_items (project)"]
+    },
+    {
+      "name": "after_sales_tickets",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != ''",
+        "view": "@request.auth.id != ''",
+        "create": "@request.auth.id != ''",
+        "update": "@request.auth.id != ''",
+        "delete": "@request.auth.id != ''"
+      },
+      "fields": [
+        {
+          "name": "description",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": ["aberto", "em_atendimento", "agendado", "resolvido"]
+        },
+        {
+          "name": "opened_at",
+          "type": "date",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "scheduled_for",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "scheduled_time",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "maintenance_date",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "maintenance_notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "maintenance_cost",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "rating",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "resolution_notes",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "client",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "clients"
+        },
+        {
+          "name": "project",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "projects"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_ast_status ON after_sales_tickets (status)",
+        "CREATE INDEX idx_ast_project ON after_sales_tickets (project)",
+        "CREATE INDEX idx_ast_client ON after_sales_tickets (client)"
+      ]
     }
   ]
 }
