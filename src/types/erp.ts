@@ -337,10 +337,17 @@ export interface FinancialAccountRecord {
   installment_total?: number
   notes?: string
   client?: string
+  supplier?: string
   project?: string
+  purchase?: string
+  category?: string
   created: string
   updated: string
-  expand?: { client?: ClientRecord; project?: ProjectRecord }
+  expand?: {
+    client?: ClientRecord
+    project?: ProjectRecord
+    supplier?: { id: string; name: string }
+  }
 }
 
 export interface AccountFormValues {
@@ -348,6 +355,13 @@ export interface AccountFormValues {
   description: string
   amount: string
   due_date: string
+  client: string
+  supplier: string
+  project: string
+  purchase: string
+  category: string
+  installment_number: string
+  installment_total: string
   notes: string
 }
 
@@ -356,6 +370,13 @@ export const emptyAccountForm: AccountFormValues = {
   description: '',
   amount: '',
   due_date: '',
+  client: '',
+  supplier: '',
+  project: '',
+  purchase: '',
+  category: '',
+  installment_number: '',
+  installment_total: '',
   notes: '',
 }
 

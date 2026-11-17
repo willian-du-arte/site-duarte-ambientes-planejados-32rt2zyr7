@@ -21,7 +21,9 @@ import type {
   QuoteStatus,
   TaskFormValues,
   TaskRecord,
+  AccountFormValues,
 } from '@/types/erp'
+import type { FinanceCategoryKind, FinanceCategoryRecord } from '@/types/finance'
 
 function throwPbError(error: unknown): never {
   if (error && typeof error === 'object' && 'response' in error) {
@@ -63,6 +65,38 @@ const num = (v: string | number | undefined | null): number => {
 }
 
 const opt = (v: string): string | undefined => (v.trim() === '' ? undefined : v.trim())
+
+// ---------- Categorias financeiras ----------
+
+export async function listCategories(): Promise<FinanceCategoryRecord[]> {
+  return pb.collection('finance_categories').getFullList<FinanceCategoryRecord>({ sort: 'name' })
+}
+
+export async function createCategory(form: {
+  name: string
+  kind: FinanceCategoryKind
+}): Promise<FinanceCategoryRecord> {
+  try {
+    const rec = await pb.collection('finance_categories').create<FinanceCategoryRecord>({
+      name: form.name.trim(),
+      kind: form.kind,
+    })
+    await log(
+      'finance_categories',
+      rec.id,
+      'criado',
+      `Categoria "${rec.name}" (${rec.kind}) criada`,
+    )
+    return rec
+  } catch (e) {
+    throwPbError(e)
+  }
+}
+
+export async function deleteCategory(id: string, name: string): Promise<void> {
+  await pb.collection('finance_categories').delete(id)
+  await log('finance_categories', id, 'excluído', `Categoria "${name}" excluída`)
+}
 
 // ---------- Clients ----------
 
@@ -485,14 +519,11 @@ export async function updateProjectStage(
 
 // ---------- Financeiro ----------
 
-export interface AccountFormInput {
-  kind: 'receber' | 'pagar'
-  description: string
-  amount: string
-  due_date: string
-  notes?: string
+export interface AccountFormInput extends AccountFormValues {
   client?: string
+  supplier?: string
   project?: string
+  purchase?: string
 }
 
 function accountPayload(form: AccountFormInput) {
@@ -502,8 +533,13 @@ function accountPayload(form: AccountFormInput) {
     amount: num(form.amount),
     due_date: form.due_date,
     notes: opt(form.notes ?? ''),
-    client: form.client,
-    project: form.project,
+    client: form.client || undefined,
+    supplier: form.supplier || undefined,
+    project: form.project || undefined,
+    purchase: form.purchase || undefined,
+    category: opt(form.category ?? ''),
+    installment_number: form.installment_number ? num(form.installment_number) : undefined,
+    installment_total: form.installment_total ? num(form.installment_total) : undefined,
   }
 }
 
@@ -529,19 +565,35 @@ export async function markAccountPaid(
   before: FinancialAccountRecord,
   paidAmount: number,
 ): Promise<FinancialAccountRecord> {
+  const rec = await registerPayment(id, { amount: paidAmount, paid_at: new Date().toISOString() })
+  void before
+  return rec
+}
+
+/**
+ * Registra um pagamento/recebimento (TOTAL ou PARCIAL) numa conta.
+ * Soma ao paid_amount; quando o saldo zera, marca paid=true e paid_at com a data da baixa.
+ */
+export async function registerPayment(
+  id: string,
+  opts: { amount: number; paid_at?: string },
+): Promise<FinancialAccountRecord> {
+  const before = await pb.collection('financial_accounts').getOne<FinancialAccountRecord>(id)
   const total = before.amount ?? 0
-  const newPaid = num(before.paid_amount) + paidAmount
-  const fullyPaid = newPaid >= total - 0.005
-  const rec = await pb.collection('financial_accounts').update<FinancialAccountRecord>(id, {
+  const newPaid = num(before.paid_amount) + opts.amount
+  const fullyPaid = total > 0 && newPaid >= total - 0.005
+  const patch: Record<string, unknown> = {
     paid_amount: newPaid,
     paid: fullyPaid,
-    paid_at: fullyPaid ? new Date().toISOString() : undefined,
-  })
+  }
+  // paid_at guarda a data da ÚLTIMA baixa (usada pelo fluxo de caixa)
+  patch.paid_at = new Date((opts.paid_at || new Date().toISOString()) + 'T12:00:00').toISOString()
+  const rec = await pb.collection('financial_accounts').update<FinancialAccountRecord>(id, patch)
   await log(
     'financial_accounts',
     id,
-    fullyPaid ? 'quitado' : 'recebimento parcial',
-    `"${rec.description}" — ${fullyPaid ? 'quitada' : 'parcial'}`,
+    fullyPaid ? 'quitado' : 'baixa parcial',
+    `"${rec.description}" — ${fullyPaid ? 'quitada' : 'parcial'} (${opts.amount.toFixed(2)})`,
     [
       {
         field: 'valor pago',
