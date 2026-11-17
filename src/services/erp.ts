@@ -519,12 +519,7 @@ export async function updateProjectStage(
 
 // ---------- Financeiro ----------
 
-export interface AccountFormInput extends AccountFormValues {
-  client?: string
-  supplier?: string
-  project?: string
-  purchase?: string
-}
+export type AccountFormInput = AccountFormValues
 
 function accountPayload(form: AccountFormInput) {
   return {

@@ -462,9 +462,10 @@ export function ErpFinance() {
 
   const openEdit = (a: FinancialAccountRecord) => {
     setForm({
+      ...emptyAccountForm,
       kind: a.kind as AccountKind,
       description: a.description ?? '',
-      amount: a.amount ? String(a.amount) : '',
+      amount: a.amount != null ? String(a.amount) : '',
       due_date: a.due_date ? a.due_date.slice(0, 10) : '',
       notes: a.notes ?? '',
     })

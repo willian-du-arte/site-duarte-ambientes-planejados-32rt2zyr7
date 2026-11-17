@@ -2,16 +2,7 @@
 // Abas: A receber · A pagar · Fluxo de caixa (dia/semana/mês) · Categorias · Resultado por projeto.
 // Indicadores separam FATURAMENTO (contratado), CAIXA (recebido/pago) e LUCRO ESTIMADO.
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  Plus,
-  Trash2,
-  Loader2,
-  Wallet,
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Scale,
-  AlertTriangle,
-} from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
 import { ErpPageHeader, ErpEmptyState, ErpStatCard, ErpSectionTitle } from './ErpShared'
@@ -25,18 +16,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import {
-  createAccount,
-  deleteAccount,
-  listAccounts,
-  markAccountPaid,
-  remainingOf,
-  updateAccount,
-} from '@/services/erp'
+import { deleteAccount, listProjects } from '@/services/erp'
 import {
   createCategory,
   deleteCategory,
-  listAccounts as listFinanceAccounts,
+  listAccounts,
+  remainingOf,
   listCategories,
 } from '@/services/finance'
 import {
@@ -83,8 +68,8 @@ export default function ErpFinance() {
 
   const load = useCallback(async () => {
     const [accs, prjs, purchs, cats] = await Promise.all([
-      listFinanceAccounts(),
-      import('@/services/erp').then((m) => m.listProjects()),
+      listAccounts(),
+      listProjects(),
       import('@/services/inventory').then((m) => m.listPurchases()),
       listCategories(),
     ])

@@ -20,12 +20,11 @@ export function extractFieldErrors(error: unknown): FieldErrors {
   return errors
 }
 
-// Erro de validação de campo do ERP (payload inválido rejeitado pelo PocketBase).
-// Já foi apagado por engano antes — é importado por 8+ arquivos do ERP.
 export class ErpValidationError extends Error {
   fields: FieldErrors
+
   constructor(fields: FieldErrors) {
-    super(Object.values(fields)[0] || 'Dados inválidos')
+    super(Object.values(fields).join(' ') || 'Dados inválidos.')
     this.name = 'ErpValidationError'
     this.fields = fields
   }

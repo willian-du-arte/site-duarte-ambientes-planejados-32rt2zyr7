@@ -62,8 +62,8 @@ export default function AccountsTable({
                       parcela {a.installment_number ?? '—'}/{a.installment_total}
                     </p>
                   )}
-                  {a.project?.title && (
-                    <p className="text-[11px] text-zinc-500">Projeto: {a.project.title}</p>
+                  {a.expand?.project?.title && (
+                    <p className="text-[11px] text-zinc-500">Projeto: {a.expand.project.title}</p>
                   )}
                 </td>
                 <td className="px-3 py-2 text-zinc-300">

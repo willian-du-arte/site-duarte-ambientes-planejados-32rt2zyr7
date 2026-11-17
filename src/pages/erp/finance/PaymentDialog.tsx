@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
-import { registerPayment, remainingOf } from '@/services/finance'
+import { remainingOf } from '@/services/finance'
+import { registerPayment } from '@/services/erp'
 import {
   Dialog,
   DialogContent,
